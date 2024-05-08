@@ -14,7 +14,7 @@ import {
 } from "@chatscope/chat-ui-kit-react"
 import axios from "axios"
 import { onAuthStateChanged } from "firebase/auth"
-import { onValue, push, ref, set } from "firebase/database"
+import { get, onValue, push, ref, set } from "firebase/database"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 
@@ -48,9 +48,23 @@ const ChatPage = () => {
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        axios
-          .get("/api/auth?userId=" + user.uid)
-          .then((res) => setIsLoggedIn(res.data))
+        axios.get("/api/auth?userId=" + user.uid).then((res) => {
+          setIsLoggedIn(res.data)
+          const messagesRef = ref(db, `messages/${res.data?.userId}/${adminid}`)
+          get(messagesRef)
+            .then((snapshot) => {
+              const messagesData = snapshot.val()
+              if (messagesData) {
+                const messagesArray = Object.values(messagesData)
+                setMessages(messagesArray)
+              } else {
+                setMessages([])
+              }
+            })
+            .catch((error) => {
+              console.error("Error fetching data:", error)
+            })
+        })
         // User is signed in
         // Redirect to protected routes or display logged-in content
       } else {
