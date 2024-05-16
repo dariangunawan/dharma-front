@@ -1,4 +1,4 @@
-import { app, auth, db } from "@/lib/firebase"
+import { app, auth, db, storage } from "@/lib/firebase"
 import style from "@chatscope/chat-ui-kit-styles/dist/default/styles.min.css"
 import {
   Avatar,
@@ -15,11 +15,17 @@ import {
 import axios from "axios"
 import { onAuthStateChanged } from "firebase/auth"
 import { get, onValue, push, ref, set } from "firebase/database"
+import {
+  ref as refStorage,
+  uploadBytesResumable,
+  getDownloadURL,
+} from "firebase/storage"
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 const ChatPage = () => {
   const router = useRouter()
+  const fileInputRef = useRef(null)
   const [isLoggedIn, setIsLoggedIn] = useState(null)
   const [messages, setMessages] = useState([])
   const [newMessage, setNewMessage] = useState("")
@@ -40,6 +46,7 @@ const ChatPage = () => {
       tanggal: new Date().toISOString(),
       sender_id: isLoggedIn?.userId,
       receiver_id: adminid,
+      isFile: false,
     })
 
     setNewMessage("")
@@ -85,10 +92,70 @@ const ChatPage = () => {
       }
     })
   }, [])
-  console.log("messages", messages)
-  console.log("isLoggedIn", isLoggedIn)
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0]
+    if (file) {
+      const storageRef = refStorage(storage, `uploads/${file.name}`)
+      const uploadTask = uploadBytesResumable(storageRef, file)
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          console.error("snapshot", snapshot)
+          // Handle progress if needed
+        },
+        (error) => {
+          console.error("File upload error:", error)
+        },
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+          console.log(downloadURL, "downloadURL")
+
+          const messagesRef = ref(db, url)
+          const newMessageRef = push(messagesRef)
+          set(newMessageRef, {
+            nama_pengirim: isLoggedIn?.name,
+            nama_penerima: "Admin",
+            tanggal: new Date().toISOString(),
+            sender_id: isLoggedIn?.userId,
+            receiver_id: adminid,
+            pesan: "Mengirim Sebuah File, Klik Untuk Download",
+            fileUrl: downloadURL,
+            isFile: true,
+          })
+
+          setNewMessage("")
+          // await addDoc(collection(db, "files"), {
+          //   name: file.name,
+          //   url: downloadURL,
+          //   createdAt: new Date(),
+          // })
+          // setMessages([
+          //   ...messages,
+          //   {
+          //     text: `File uploaded: ${file.name}`,
+          //     url: downloadURL,
+          //     direction: "outgoing",
+          //   },
+          // ])
+        }
+      )
+    }
+  }
+
+  const handleAttachClick = () => {
+    fileInputRef.current?.click()
+  }
+
   return (
     <div style={{ height: "100vh" }}>
+      <input
+        ref={fileInputRef}
+        type="file"
+        style={{ display: "none" }}
+        onChange={handleFileUpload}
+      />
       <MainContainer>
         <Sidebar position="left">
           <ConversationList>
@@ -121,6 +188,11 @@ const ChatPage = () => {
                       direction: "outgoing",
                       position: "single",
                     }}
+                    onClick={() => {
+                      if (item?.isFile) {
+                        window.open(item?.fileUrl, "_blank")
+                      }
+                    }}
                   ></Message>
                 )
               }
@@ -134,6 +206,11 @@ const ChatPage = () => {
                     direction: "incoming",
                     position: "single",
                   }}
+                  onClick={() => {
+                    if (item?.isFile) {
+                      window.open(item?.fileUrl, "_blank")
+                    }
+                  }}
                 ></Message>
               )
             })}
@@ -144,6 +221,7 @@ const ChatPage = () => {
             onSend={handleSendMessage}
             value={newMessage}
             onChange={(e) => setNewMessage(e)}
+            onAttachClick={handleAttachClick}
           />
         </ChatContainer>
       </MainContainer>
