@@ -3,6 +3,7 @@ import Center from "@/components/Center"
 import Header from "@/components/Header"
 import Input from "@/components/Input"
 import { OrderContext } from "@/components/OrderContext"
+import Select from "@/components/Select"
 import Table from "@/components/Table"
 import axios from "axios"
 import { useContext, useEffect, useState } from "react"
@@ -53,6 +54,8 @@ export default function OrderPage() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [company, setCompany] = useState("")
+  const [type_order, setTypeOrder] = useState("")
+  const [type_payment, setTypePayment] = useState("")
   const [isSuccess, setIsSuccess] = useState(false)
   useEffect(() => {
     if (orderServices.length > 0) {
@@ -73,7 +76,6 @@ export default function OrderPage() {
     }
   }, [])
 
-  console.log(orderServices, "orderServices")
   function removeTheService(id) {
     removeService(id)
   }
@@ -82,6 +84,8 @@ export default function OrderPage() {
       name,
       email,
       company,
+      type_order,
+      type_payment,
       orderServices,
     })
     if (response.data.url) {
@@ -172,6 +176,22 @@ export default function OrderPage() {
                 value={company}
                 onChange={(ev) => setCompany(ev.target.value)}
               />
+              <Select
+                placeholder="Type Order"
+                value={type_order}
+                onChange={(ev) => setTypeOrder(ev.target.value)}
+              >
+                <option value="regular-order">Regular Order</option>
+                <option value="ganti-design">Ganti Design</option>
+              </Select>
+              <Select
+                placeholder="Type Payment"
+                value={type_payment}
+                onChange={(ev) => setTypePayment(ev.target.value)}
+              >
+                <option value="termin-1">Termin 1</option>
+                <option value="termin-2">Termin 2</option>
+              </Select>
               <Button black block onClick={goToPayment}>
                 Continue to payment
               </Button>

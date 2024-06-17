@@ -6,6 +6,9 @@ const OrderSchema = new Schema(
     name: String,
     email: String,
     company: String,
+    type_order: String,
+    type_payment: String,
+    status: String,
     paid: Number,
   },
   {

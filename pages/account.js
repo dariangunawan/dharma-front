@@ -294,18 +294,20 @@ export default function AccountPage() {
                       >
                         Kata Sandi
                       </label>
-                      <div className="text-sm">
-                        <a
-                          href="#"
-                          onClick={(event) => {
-                            event.preventDefault()
-                            setIsForgotPassword(true)
-                          }}
-                          className="font-semibold text-indigo-600 hover:text-indigo-500"
-                        >
-                          Lupa Kata Sandi?
-                        </a>
-                      </div>
+                      {isLogin && (
+                        <div className="text-sm">
+                          <a
+                            href="#"
+                            onClick={(event) => {
+                              event.preventDefault()
+                              setIsForgotPassword(true)
+                            }}
+                            className="font-semibold text-indigo-600 hover:text-indigo-500"
+                          >
+                            Lupa Kata Sandi?
+                          </a>
+                        </div>
+                      )}
                     </div>
                     <div className="mt-2">
                       <input

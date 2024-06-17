@@ -8,8 +8,9 @@ import Title from "@/components/Title"
 import WhiteBox from "@/components/WhiteBox"
 import { mongooseConnect } from "@/lib/mongoose"
 import { Service } from "@/models/Service"
+import axios from "axios"
 import { useRouter } from "next/router"
-import { useContext } from "react"
+import { useContext, useEffect, useState } from "react"
 import styled from "styled-components"
 
 const ColWrapper = styled.div`
@@ -32,6 +33,29 @@ const Price = styled.span`
 export default function ServicePage({ service }) {
   const router = useRouter()
   const { addOrder } = useContext(OrderContext)
+  const [reviews, setReviews] = useState([])
+  const [reviewsLoading, setReviewsLoading] = useState(false)
+
+  function loadReviews() {
+    setReviewsLoading(true)
+    axios.get("/api/reviews?service=" + service?._id).then((res) => {
+      setReviews(res.data)
+      setReviewsLoading(false)
+    })
+  }
+
+  useEffect(() => {
+    loadReviews()
+  }, [])
+
+  const rating =
+    (reviews &&
+      reviews.reduce((rowAccumulator, currentItem) => {
+        return rowAccumulator + currentItem.stars
+      }, 0)) ||
+    0
+
+  const finalRating = rating / reviews?.length
   return (
     <>
       <Header />
@@ -43,6 +67,9 @@ export default function ServicePage({ service }) {
           <div>
             <Title>{service.title}</Title>
             <p>{service.description}</p>
+            <p>
+              {finalRating?.toFixed(1) || 0} ({reviews?.length || 0})
+            </p>
             <PriceRow>
               <div>
                 <Price>Rp{service.price}</Price>
