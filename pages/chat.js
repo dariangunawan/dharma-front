@@ -110,7 +110,6 @@ const ChatPage = () => {
         },
         async () => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
-          console.log(downloadURL, "downloadURL")
 
           const messagesRef = ref(db, url)
           const newMessageRef = push(messagesRef)

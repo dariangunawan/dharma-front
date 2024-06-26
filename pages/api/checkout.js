@@ -8,7 +8,8 @@ export default async function handler(req, res) {
     res.json("should be a POST request")
     return
   }
-  const { name, email, company, orderServices } = req.body
+  const { name, email, company, orderServices, type_order, type_payment } =
+    req.body
   await mongooseConnect()
   const servicesIds = orderServices
   const uniqueIds = [...new Set(servicesIds)]
@@ -26,21 +27,34 @@ export default async function handler(req, res) {
         price_data: {
           currency: "IDR",
           product_data: { name: serviceInfo.title },
-          unit_amount: serviceInfo.price * 100,
+          unit_amount: (serviceInfo.price * 100) / 2,
         },
         nama_jasa: serviceInfo.title,
         nilai: serviceInfo.price,
-        total: quantity * serviceInfo.price,
+        total: (quantity * serviceInfo.price) / 2,
       })
     }
   }
 
   const orderDoc = await Order.create({
-    line_items,
+    line_items: line_items.map((item) => {
+      return {
+        ...item,
+        price_data: {
+          ...item.price_data,
+          product_data: {
+            title: item.price_data.product_data.name,
+          },
+        },
+      }
+    }),
     name,
     email,
     company,
     paid: 0,
+    type_order,
+    type_payment,
+    status: "diterima",
   })
 
   const session = await stripe.checkout.sessions.create({

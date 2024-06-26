@@ -5,7 +5,9 @@ import Input from "@/components/Input"
 import { OrderContext } from "@/components/OrderContext"
 import Select from "@/components/Select"
 import Table from "@/components/Table"
+import { auth } from "@/lib/firebase"
 import axios from "axios"
+import { onAuthStateChanged } from "firebase/auth"
 import { useContext, useEffect, useState } from "react"
 import styled from "styled-components"
 
@@ -54,9 +56,10 @@ export default function OrderPage() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [company, setCompany] = useState("")
-  const [type_order, setTypeOrder] = useState("")
-  const [type_payment, setTypePayment] = useState("")
+  const [type_order, setTypeOrder] = useState("regular-order")
+  const [type_payment, setTypePayment] = useState("termin-1")
   const [isSuccess, setIsSuccess] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(null)
   useEffect(() => {
     if (orderServices.length > 0) {
       axios.post("/api/orders", { ids: orderServices }).then((response) => {
@@ -76,6 +79,25 @@ export default function OrderPage() {
     }
   }, [])
 
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        axios.get("/api/auth?userId=" + user.uid).then((res) => {
+          setIsLoggedIn(res.data)
+          setName(res?.data?.name)
+          setEmail(res?.data?.email)
+        })
+        // User is signed in
+        // Redirect to protected routes or display logged-in content
+      } else {
+        setIsLoggedIn(null)
+        // User is not signed in
+        console.log("User is not signed in")
+        // Redirect to login or registration page
+      }
+    })
+  }, [])
+  console.log(orderServices, "orderServices")
   function removeTheService(id) {
     removeService(id)
   }
