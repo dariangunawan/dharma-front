@@ -55,7 +55,6 @@ export default function OrderPage() {
   const [services, setServices] = useState([])
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
-  const [company, setCompany] = useState("")
   const [type_order, setTypeOrder] = useState("regular-order")
   const [type_payment, setTypePayment] = useState("termin-1")
   const [isSuccess, setIsSuccess] = useState(false)
@@ -105,7 +104,6 @@ export default function OrderPage() {
     const response = await axios.post("/api/checkout", {
       name,
       email,
-      company,
       type_order,
       type_payment,
       orderServices,
@@ -191,12 +189,6 @@ export default function OrderPage() {
                 placeholder="Email"
                 value={email}
                 onChange={(ev) => setEmail(ev.target.value)}
-              />
-              <Input
-                type="text"
-                placeholder="Company"
-                value={company}
-                onChange={(ev) => setCompany(ev.target.value)}
               />
               <Select
                 placeholder="Type Order"

@@ -8,7 +8,7 @@ export default async function handler(req, res) {
     res.json("should be a POST request")
     return
   }
-  const { name, email, company, orderServices, type_order, type_payment } =
+  const { name, email, orderServices, type_order, type_payment } =
     req.body
   await mongooseConnect()
   const servicesIds = orderServices
@@ -50,7 +50,6 @@ export default async function handler(req, res) {
     }),
     name,
     email,
-    company,
     paid: 0,
     type_order,
     type_payment,
