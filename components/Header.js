@@ -72,8 +72,8 @@ export default function Header() {
                     <Logo href={'/'}>dharma kreasi</Logo>
                     <StyledNav mobileNavActive={mobileNavActive}>
                         <NavLink href={'/'}>Home</NavLink>
-                        <NavLink href={'/account'}>Account</NavLink>
                         <NavLink href={'/orders'}>Orders({orderServices.length})</NavLink>
+                        <NavLink href={'/account'}>Account</NavLink>
                     </StyledNav>
                     <NavButton onClick={() => setMobileNavActive(prev => !prev)}>
                         <BarsIcon />

@@ -1,6 +1,6 @@
 import Button from "@/components/Button"
 import Center from "@/components/Center"
-import FacebookLoginButton from "@/components/FacebookLoginButton"
+// import FacebookLoginButton from "@/components/FacebookLoginButton"
 import GoogleLoginButton from "@/components/GoogleLoginButton"
 import Header from "@/components/Header"
 import { auth } from "@/lib/firebase"
@@ -54,15 +54,15 @@ export default function AccountPage() {
         "auth/invalid-value-(email),-starting-an-object-on-a-scalar-field-invalid-value-(password),-starting-an-object-on-a-scalar-field"
       ) {
         // Handle invalid email error
-        return toast.error("Email Tidak Valid")
+        return toast.error("Email invalid")
         // Display user-friendly error message
       } else if (error.code === "auth/invalid-credential") {
         // Handle invalid email error
-        return toast.error("Email atau Kata Sandi Tidak Sesuai")
+        return toast.error("Email or password incorrect")
         // Display user-friendly error message
       } else if (error.code === "auth/email-already-in-use") {
         // Handle invalid email error
-        return toast.error("Email Sudah Terdaftar")
+        return toast.error("Email already registered")
         // Display user-friendly error message
       } else {
         // Handle other FirebaseAuth errors
@@ -73,7 +73,7 @@ export default function AccountPage() {
   const handleSignInWithEmailAndPassword = async ({ email, password }) => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password)
-      toast.success("Selamat, Login telah berhasil")
+      toast.success("Congratulations, login success")
       return router.replace("/")
     } catch (error) {
       console.log(error.code, form, "error.code")
@@ -82,11 +82,11 @@ export default function AccountPage() {
         "auth/invalid-value-(email),-starting-an-object-on-a-scalar-field-invalid-value-(password),-starting-an-object-on-a-scalar-field"
       ) {
         // Handle invalid email error
-        return toast.error("Email Tidak Valid")
+        return toast.error("Email invalid")
         // Display user-friendly error message
       } else if (error.code === "auth/invalid-credential") {
         // Handle invalid email error
-        return toast.error("Email atau Kata Sandi Tidak Sesuai")
+        return toast.error("Email or password incorrect")
         // Display user-friendly error message
       } else {
         // Handle other FirebaseAuth errors
@@ -111,7 +111,7 @@ export default function AccountPage() {
       if (user) {
         axios
           .get("/api/auth?userId=" + user.uid)
-          .then((res) => setIsLoggedIn(res.data))
+          .then((res) => setIsLoggedIn({ ...res.data, image: user?.photoURL }))
         // User is signed in
         // Redirect to protected routes or display logged-in content
       } else {
@@ -126,12 +126,12 @@ export default function AccountPage() {
   const handleForgotPassword = async ({ email }) => {
     try {
       const result = await sendPasswordResetEmail(auth, email)
-      toast.success("Link Lupa Kata sandi telah dikirim ke email")
+      toast.success("Forgot password link has been sent to email")
       setIsForgotPassword(false)
       setIsLogin(true)
     } catch (error) {
       console.log(error.code, form, "error.code")
-      return toast.error("Email atau Kata Sandi Tidak Sesuai")
+      return toast.error("Email or password incorrect")
     }
   }
 
@@ -140,11 +140,12 @@ export default function AccountPage() {
       <Header />
       {isLoggedIn ? (
         <Center>
-          <div className="mt-4">
-            <h1>Selamat Datang {isLoggedIn?.name}</h1>
+          <div className="mt-20 mx-auto text-center">
+          <img src={isLoggedIn?.image} alt="" className="w-12 h-12 mx-auto mb-5" />
+            <h1>Welcome, {isLoggedIn?.name}</h1>
 
-            <Button primary onClick={() => handleLogOut()}>
-              Keluar
+            <Button className="mt-5" primary onClick={() => handleLogOut()}>
+              Log out
             </Button>
           </div>
         </Center>
@@ -154,11 +155,11 @@ export default function AccountPage() {
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
               <img
                 className="mx-auto h-10 w-auto"
-                src="https://i.imgur.com/nYikGVf.png"
+                src="https://i.imgur.com/6gZYrSt.png"
                 alt="dharma kreasi"
               />
               <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-                {isForgotPassword ? "Lupa Kata Sandi" : " Silahkan Masuk"}
+                {isLogin ? "Log in" : "Register"}
               </h2>
             </div>
 
@@ -191,7 +192,7 @@ export default function AccountPage() {
                       onClick={(e) => {
                         if (!form.email) {
                           return toast.error(
-                            "Mohon lengkapi form terlebih dahulu"
+                            "Please complete the form"
                           )
                         }
 
@@ -199,13 +200,13 @@ export default function AccountPage() {
                       }}
                       className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
-                      Kirim Link Lupa Kata Sandi
+                      Send forgot password link
                     </button>
                   </div>
                 </form>
 
                 <p className="mt-10 text-center text-sm text-gray-500">
-                  Ingat Kata Sandi?
+                  Remember password?
                   <a
                     href="#"
                     onClick={(e) => {
@@ -215,7 +216,7 @@ export default function AccountPage() {
                     }}
                     className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500 pl-2"
                   >
-                    Masuk Sekarang
+                    Log in
                   </a>
                 </p>
               </div>
@@ -229,7 +230,7 @@ export default function AccountPage() {
                           htmlFor="name"
                           className="block text-sm font-medium leading-6 text-gray-900"
                         >
-                          Nama Lengkap
+                          Name
                         </label>
                         <div className="mt-2">
                           <input
@@ -249,7 +250,7 @@ export default function AccountPage() {
                           htmlFor="phone"
                           className="block text-sm font-medium leading-6 text-gray-900"
                         >
-                          Nomor Hp
+                          Phone
                         </label>
                         <div className="mt-2">
                           <input
@@ -292,7 +293,7 @@ export default function AccountPage() {
                         htmlFor="password"
                         className="block text-sm font-medium leading-6 text-gray-900"
                       >
-                        Kata Sandi
+                        Password
                       </label>
                       {isLogin && (
                         <div className="text-sm">
@@ -304,7 +305,7 @@ export default function AccountPage() {
                             }}
                             className="font-semibold text-indigo-600 hover:text-indigo-500"
                           >
-                            Lupa Kata Sandi?
+                            Forgot password?
                           </a>
                         </div>
                       )}
@@ -330,7 +331,7 @@ export default function AccountPage() {
                       onClick={(e) => {
                         if (!form.email || !form.password) {
                           return toast.error(
-                            "Mohon lengkapi form terlebih dahulu"
+                            "Please complete the form"
                           )
                         }
 
@@ -341,18 +342,18 @@ export default function AccountPage() {
                       }}
                       className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
-                      Masuk
+                      {isLogin ? "Log in" : "Register"}
                     </button>
                   </div>
                 </form>
-                <p className="font-semibold leading-2 text-center mt-6">ATAU</p>
+                <p className="font-semibold leading-2 text-center mt-6">OR</p>
                 <div class="flex justify-around items-center mt-6">
                   <GoogleLoginButton />
-                  <FacebookLoginButton />
+                  {/* <FacebookLoginButton /> */}
                 </div>
 
                 <p className="mt-10 text-center text-sm text-gray-500">
-                  {isLogin ? "Belum Punya Akun?" : "Sudah Punya Akun?"}
+                  {isLogin ? "Don't have an account?" : "Have an account?"}
                   <a
                     href="#"
                     onClick={(e) => {
@@ -361,7 +362,7 @@ export default function AccountPage() {
                     }}
                     className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500 pl-2"
                   >
-                    {isLogin ? " Daftar Sekarang" : "Masuk Sekarang"}
+                    {isLogin ? "Register" : "Log in"}
                   </a>
                 </p>
               </div>
