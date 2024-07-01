@@ -51,7 +51,7 @@ const ButtonPosition = styled.div`
 `
 
 export default function OrderPage() {
-  const { orderServices, removeService, clearOrders } = useContext(OrderContext)
+  const { orderServices, removeService, addOrder, clearOrders } = useContext(OrderContext)
   const [services, setServices] = useState([])
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -67,7 +67,10 @@ export default function OrderPage() {
     } else {
       setServices([])
     }
-  }, [orderServices])
+  }, [orderServices]);
+  function moreOfThisService(id) {
+    addOrder(id);
+  }
   useEffect(() => {
     if (typeof window === "undefined") {
       return
@@ -165,8 +168,11 @@ export default function OrderPage() {
                           .length * service.price}
                       </td>
                       <ButtonPosition>
-                        <Button onClick={() => removeTheService(service._id)}>
-                          Remove
+                        <Button className="mt-16" onClick={() => moreOfThisService(service._id)}>
+                          More
+                        </Button>
+                        <Button className="mt-16" onClick={() => removeTheService(service._id)}>
+                          Less
                         </Button>
                       </ButtonPosition>
                     </tr>
