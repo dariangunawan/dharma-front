@@ -111,6 +111,7 @@ export default function OrderPage() {
       orderServices,
     })
     if (response.data.url) {
+      localStorage.removeItem("orders")
       window.location = response.data.url
     }
   }
