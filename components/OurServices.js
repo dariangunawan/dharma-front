@@ -15,7 +15,7 @@ const ServicesGrid = styled.div`
 export default function OurServices({services}) {
     return (
         <Center>
-            <h2>Our services</h2>
+            <h1 className="mt-2 mb-2 font-bold text-2xl">Our services</h1>
             <ServicesGrid>
                 {services?.length > 0 && services.map(service => (
                     <ServiceBox {...service} />

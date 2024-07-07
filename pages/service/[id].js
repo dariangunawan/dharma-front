@@ -68,7 +68,7 @@ export default function ServicePage({ service }) {
             <Title>{service.title}</Title>
             <p>{service.description}</p>
             <p>
-              {finalRating?.toFixed(1) || 0} ({reviews?.length || 0})
+            ⭐ {finalRating?.toFixed(1) || 0} ({reviews?.length || 0})
             </p>
             <PriceRow>
               <div>
@@ -78,7 +78,7 @@ export default function ServicePage({ service }) {
                 <Button primary onClick={() => addOrder(service._id)}>
                   Order
                 </Button>
-                <Button primary onClick={() => router.replace("/chat")}>
+                <Button className="ml-3" primary onClick={() => router.replace("/chat")}>
                   Chat
                 </Button>
               </div>
