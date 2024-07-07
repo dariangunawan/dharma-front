@@ -51,25 +51,29 @@ const ButtonPosition = styled.div`
 `
 
 export default function OrderPage() {
-  const { orderServices, removeService, addOrder, clearOrders } = useContext(OrderContext)
+  const { orderServices, removeService, addOrder, clearOrders } =
+    useContext(OrderContext)
   const [services, setServices] = useState([])
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
+  const [userId, setUserId] = useState(null)
   const [type_order, setTypeOrder] = useState("regular-order")
   const [type_payment, setTypePayment] = useState("termin-1")
   const [isSuccess, setIsSuccess] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(null)
   useEffect(() => {
     if (orderServices.length > 0) {
-      axios.post("/api/orders", { ids: orderServices }).then((response) => {
-        setServices(response.data)
-      })
+      axios
+        .post("/api/orders", { ids: orderServices, type: "service" })
+        .then((response) => {
+          setServices(response.data)
+        })
     } else {
       setServices([])
     }
-  }, [orderServices]);
+  }, [orderServices])
   function moreOfThisService(id) {
-    addOrder(id);
+    addOrder(id)
   }
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -88,6 +92,7 @@ export default function OrderPage() {
           setIsLoggedIn(res.data)
           setName(res?.data?.name)
           setEmail(res?.data?.email)
+          setUserId(res._id)
         })
         // User is signed in
         // Redirect to protected routes or display logged-in content
@@ -99,12 +104,13 @@ export default function OrderPage() {
       }
     })
   }, [])
-  console.log(orderServices, "orderServices")
+
   function removeTheService(id) {
     removeService(id)
   }
   async function goToPayment() {
     const response = await axios.post("/api/checkout", {
+      userId,
       name,
       email,
       type_order,
@@ -169,10 +175,16 @@ export default function OrderPage() {
                           .length * service.price}
                       </td>
                       <ButtonPosition>
-                        <Button className="mt-16" onClick={() => moreOfThisService(service._id)}>
+                        <Button
+                          className="mt-16"
+                          onClick={() => moreOfThisService(service._id)}
+                        >
                           More
                         </Button>
-                        <Button className="mt-16" onClick={() => removeTheService(service._id)}>
+                        <Button
+                          className="mt-16"
+                          onClick={() => removeTheService(service._id)}
+                        >
                           Less
                         </Button>
                       </ButtonPosition>

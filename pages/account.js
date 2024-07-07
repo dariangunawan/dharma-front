@@ -22,6 +22,7 @@ export default function AccountPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(null)
   const [isForgotPassword, setIsForgotPassword] = useState(false)
   const [isLogin, setIsLogin] = useState(true)
+  const [orders, setOrders] = useState([])
   const [form, setForm] = useState({
     name: null,
     phone: null,
@@ -106,12 +107,21 @@ export default function AccountPage() {
       })
   }
 
+  const loadOrder = (userId) => {
+    axios
+      .post("/api/orders", { ids: userId, type: "order" })
+      .then((response) => {
+        setOrders(response.data)
+      })
+  }
+
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        axios
-          .get("/api/auth?userId=" + user.uid)
-          .then((res) => setIsLoggedIn({ ...res.data, image: user?.photoURL }))
+        axios.get("/api/auth?userId=" + user.uid).then((res) => {
+          loadOrder(user.email)
+          setIsLoggedIn({ ...res.data, image: user?.photoURL })
+        })
         // User is signed in
         // Redirect to protected routes or display logged-in content
       } else {
@@ -140,13 +150,62 @@ export default function AccountPage() {
       <Header />
       {isLoggedIn ? (
         <Center>
-          <div className="mt-20 mx-auto text-center">
-          <img src={isLoggedIn?.image} alt="" className="w-12 h-12 mx-auto mb-5" />
-            <h1>Welcome, {isLoggedIn?.name}</h1>
+          <div>
+            <div className="mt-20 mx-auto text-center">
+              <img
+                src={isLoggedIn?.image}
+                alt=""
+                className="w-12 h-12 mx-auto mb-5"
+              />
+              <h1>Welcome, {isLoggedIn?.name}</h1>
 
-            <Button className="mt-5" primary onClick={() => handleLogOut()}>
-              Log out
-            </Button>
+              <Button className="mt-5" primary onClick={() => handleLogOut()}>
+                Log out
+              </Button>
+            </div>
+            <table className="basic w-full">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Services</th>
+                  <th>Nilai</th>
+                  <th>Type Order</th>
+                  <th>Type Pembayaran</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.length > 0 &&
+                  orders.map((order) => {
+                    return (
+                      <tr>
+                        <td>{new Date(order.createdAt).toLocaleString()}</td>
+
+                        <td>
+                          {order.line_items.map((l) => (
+                            <>
+                              {l.price_data?.product_data?.name ||
+                                l.price_data?.product_data.title}{" "}
+                              x{l.quantity}
+                              <br />
+                            </>
+                          ))}
+                        </td>
+                        <td>
+                          {order.line_items.reduce(
+                            (cur, item) => cur + item?.total || 0,
+                            0
+                          )}
+                        </td>
+                        <td>{order?.type_order || "-"}</td>
+                        <td>{order?.type_payment || "-"}</td>
+
+                        <td>{order?.status}</td>
+                      </tr>
+                    )
+                  })}
+              </tbody>
+            </table>
           </div>
         </Center>
       ) : (
@@ -191,9 +250,7 @@ export default function AccountPage() {
                       type="button"
                       onClick={(e) => {
                         if (!form.email) {
-                          return toast.error(
-                            "Please complete the form"
-                          )
+                          return toast.error("Please complete the form")
                         }
 
                         return handleForgotPassword(form)
@@ -330,9 +387,7 @@ export default function AccountPage() {
                       type="button"
                       onClick={(e) => {
                         if (!form.email || !form.password) {
-                          return toast.error(
-                            "Please complete the form"
-                          )
+                          return toast.error("Please complete the form")
                         }
 
                         if (isLogin) {
