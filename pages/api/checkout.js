@@ -23,6 +23,7 @@ export default async function handler(req, res) {
     const quantity = servicesIds.filter((id) => id === serviceId)?.length || 0
     if (quantity > 0 && serviceInfo) {
       line_items.push({
+        servicesIds: serviceId,
         quantity,
         price_data: {
           currency: "IDR",

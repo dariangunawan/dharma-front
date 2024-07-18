@@ -51,14 +51,19 @@ const ButtonPosition = styled.div`
 `
 
 export default function OrderPage() {
-  const { orderServices, removeService, addOrder, clearOrders } =
-    useContext(OrderContext)
+  const {
+    orderServices,
+    typeTermin: type_payment,
+    updateTermin,
+    removeService,
+    addOrder,
+    clearOrders,
+  } = useContext(OrderContext)
   const [services, setServices] = useState([])
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [userId, setUserId] = useState(null)
   const [type_order, setTypeOrder] = useState("regular-order")
-  const [type_payment, setTypePayment] = useState("termin-1")
   const [isSuccess, setIsSuccess] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(null)
   useEffect(() => {
@@ -220,7 +225,7 @@ export default function OrderPage() {
               <Select
                 placeholder="Type Payment"
                 value={type_payment}
-                onChange={(ev) => setTypePayment(ev.target.value)}
+                onChange={(ev) => updateTermin(ev.target.value)}
               >
                 <option value="termin-1">Termin 1</option>
                 <option value="termin-2">Termin 2</option>

@@ -3,6 +3,7 @@ import Center from "@/components/Center"
 // import FacebookLoginButton from "@/components/FacebookLoginButton"
 import GoogleLoginButton from "@/components/GoogleLoginButton"
 import Header from "@/components/Header"
+import { OrderContext } from "@/components/OrderContext"
 import { auth } from "@/lib/firebase"
 import axios from "axios"
 import {
@@ -12,13 +13,14 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth"
 import { useRouter } from "next/router"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { toast } from "react-toastify"
 
 // fitur ini belum berfungsi
 
 export default function AccountPage() {
   const router = useRouter()
+  const { addOrder, clearOrders, updateTermin } = useContext(OrderContext)
   const [isLoggedIn, setIsLoggedIn] = useState(null)
   const [isForgotPassword, setIsForgotPassword] = useState(false)
   const [isLogin, setIsLogin] = useState(true)
@@ -144,7 +146,7 @@ export default function AccountPage() {
       return toast.error("Email or password incorrect")
     }
   }
-
+  console.log(orders, "orders")
   return (
     <>
       <Header />
@@ -200,7 +202,24 @@ export default function AccountPage() {
                         <td>{order?.type_order || "-"}</td>
                         <td>{order?.type_payment || "-"}</td>
 
-                        <td>{order?.status}</td>
+                        <td>
+                          {order?.status == "selesai" &&
+                          order?.type_payment == "termin-1" ? (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                clearOrders()
+                                updateTermin("termin-2")
+                                addOrder(order?.line_items[0].servicesIds)
+                              }}
+                              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mb-2"
+                            >
+                              Bayar Termin 2
+                            </button>
+                          ) : (
+                            order?.status
+                          )}
+                        </td>
                       </tr>
                     )
                   })}
