@@ -165,7 +165,7 @@ export default function AccountPage() {
                 Log out
               </Button>
             </div>
-            <table className="basic w-full">
+            <table className="basic w-full mt-10">
               <thead>
                 <tr>
                   <th>Date</th>
