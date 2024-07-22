@@ -68,7 +68,7 @@ export default async function handler(req, res) {
       paid: 0,
       type_order,
       type_payment,
-      status: "diterima",
+      status: "pending",
     })
   }
 

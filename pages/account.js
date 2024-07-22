@@ -161,7 +161,7 @@ export default function AccountPage() {
                 alt=""
                 className="w-12 h-12 mx-auto mb-5"
               />
-              <h1>Welcome, {isLoggedIn?.name}</h1>
+              <h1>Selamat datang, {isLoggedIn?.name}</h1>
 
               <Button
                 type="primary"
