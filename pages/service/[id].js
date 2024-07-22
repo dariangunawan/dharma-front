@@ -6,6 +6,7 @@ import ServiceReviews from "@/components/ServiceReviews"
 // import ServiceImages from "@/components/ServiceImages";
 import Title from "@/components/Title"
 import WhiteBox from "@/components/WhiteBox"
+import { formatNumber } from "@/lib/helpers"
 import { mongooseConnect } from "@/lib/mongoose"
 import { Service } from "@/models/Service"
 import axios from "axios"
@@ -32,7 +33,7 @@ const Price = styled.span`
 
 export default function ServicePage({ service }) {
   const router = useRouter()
-  const { addOrder } = useContext(OrderContext)
+  const { addOrder, setOrderId, updateTermin } = useContext(OrderContext)
   const [reviews, setReviews] = useState([])
   const [reviewsLoading, setReviewsLoading] = useState(false)
 
@@ -68,17 +69,29 @@ export default function ServicePage({ service }) {
             <Title>{service.title}</Title>
             <p>{service.description}</p>
             <p>
-            ⭐ {finalRating?.toFixed(1) || 0} ({reviews?.length || 0})
+              ⭐ {(finalRating && finalRating?.toFixed(1)) || 0} (
+              {reviews?.length || 0})
             </p>
             <PriceRow>
               <div>
-                <Price>Rp{service.price}</Price>
+                <Price>{formatNumber(service.price, "Rp ")}</Price>
               </div>
               <div>
-                <Button primary onClick={() => addOrder(service._id)}>
+                <Button
+                  primary
+                  onClick={() => {
+                    setOrderId(null)
+                    updateTermin("termin-1")
+                    addOrder(service._id)
+                  }}
+                >
                   Order
                 </Button>
-                <Button className="ml-3" primary onClick={() => router.replace("/chat")}>
+                <Button
+                  className="ml-3"
+                  primary
+                  onClick={() => router.replace("/chat")}
+                >
                   Chat
                 </Button>
               </div>

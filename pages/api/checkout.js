@@ -8,8 +8,15 @@ export default async function handler(req, res) {
     res.json("should be a POST request")
     return
   }
-  const { name, userId, email, orderServices, type_order, type_payment } =
-    req.body
+  const {
+    name,
+    userId,
+    email,
+    orderServices,
+    orderId,
+    type_order,
+    type_payment,
+  } = req.body
   await mongooseConnect()
   const servicesIds = orderServices
   const uniqueIds = [...new Set(servicesIds)]
@@ -36,27 +43,34 @@ export default async function handler(req, res) {
       })
     }
   }
-
-  const orderDoc = await Order.create({
-    line_items: line_items.map((item) => {
-      return {
-        ...item,
-        price_data: {
-          ...item.price_data,
-          product_data: {
-            title: item.price_data.product_data.name,
+  let orderDoc
+  if (orderId) {
+    orderDoc = await Order.findOneAndUpdate(
+      { _id: orderId },
+      { type_payment, status: "pending" }
+    )
+  } else {
+    orderDoc = await Order.create({
+      line_items: line_items.map((item) => {
+        return {
+          ...item,
+          price_data: {
+            ...item.price_data,
+            product_data: {
+              title: item.price_data.product_data.name,
+            },
           },
-        },
-      }
-    }),
-    userId,
-    name,
-    email,
-    paid: 0,
-    type_order,
-    type_payment,
-    status: "diterima",
-  })
+        }
+      }),
+      userId,
+      name,
+      email,
+      paid: 0,
+      type_order,
+      type_payment,
+      status: "diterima",
+    })
+  }
 
   const session = await stripe.checkout.sessions.create({
     line_items: line_items.map((item) => {

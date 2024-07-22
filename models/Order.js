@@ -10,6 +10,7 @@ const OrderSchema = new Schema(
     type_payment: String,
     status: String,
     paid: Number,
+    files: Object,
   },
   {
     timestamps: true,

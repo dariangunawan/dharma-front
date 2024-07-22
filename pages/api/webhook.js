@@ -28,11 +28,11 @@ export default async function handler(req, res) {
     case "checkout.session.completed":
       const data = event.data.object
       const orderId = data.metadada.orderId
-      console.log(data, "data")
       const paid = data.payment_status === "paid"
       if (orderId && paid) {
         await Order.findByIdAndUpdate(orderId, {
           paid: 1,
+          status: "diterima",
         })
       }
       break

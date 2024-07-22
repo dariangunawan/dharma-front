@@ -6,6 +6,7 @@ import { OrderContext } from "@/components/OrderContext"
 import Select from "@/components/Select"
 import Table from "@/components/Table"
 import { auth } from "@/lib/firebase"
+import { formatNumber } from "@/lib/helpers"
 import axios from "axios"
 import { onAuthStateChanged } from "firebase/auth"
 import { useContext, useEffect, useState } from "react"
@@ -54,6 +55,8 @@ export default function OrderPage() {
   const {
     orderServices,
     typeTermin: type_payment,
+    orderId,
+    setOrderId,
     updateTermin,
     removeService,
     addOrder,
@@ -121,8 +124,10 @@ export default function OrderPage() {
       type_order,
       type_payment,
       orderServices,
+      orderId,
     })
     if (response.data.url) {
+      clearOrders()
       localStorage.removeItem("orders")
       window.location = response.data.url
     }
@@ -175,9 +180,11 @@ export default function OrderPage() {
                         }
                       </td>
                       <td>
-                        Rp
-                        {orderServices.filter((id) => id === service._id)
-                          .length * service.price}
+                        {formatNumber(
+                          orderServices.filter((id) => id === service._id)
+                            .length * service.price,
+                          "Rp "
+                        )}
                       </td>
                       <ButtonPosition>
                         <Button
@@ -188,7 +195,11 @@ export default function OrderPage() {
                         </Button>
                         <Button
                           className="mt-16"
-                          onClick={() => removeTheService(service._id)}
+                          onClick={() => {
+                            setOrderId(null)
+                            updateTermin("termin-1")
+                            removeTheService(service._id)
+                          }}
                         >
                           Less
                         </Button>
@@ -225,6 +236,7 @@ export default function OrderPage() {
               <Select
                 placeholder="Type Payment"
                 value={type_payment}
+                disabled={type_payment == "termin-2"}
                 onChange={(ev) => updateTermin(ev.target.value)}
               >
                 <option value="termin-1">Termin 1</option>

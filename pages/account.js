@@ -1,10 +1,11 @@
-import Button from "@/components/Button"
 import Center from "@/components/Center"
 // import FacebookLoginButton from "@/components/FacebookLoginButton"
 import GoogleLoginButton from "@/components/GoogleLoginButton"
 import Header from "@/components/Header"
+import ModalFile from "@/components/ModalFile"
 import { OrderContext } from "@/components/OrderContext"
 import { auth } from "@/lib/firebase"
+import { Button, Space, Table } from "antd"
 import axios from "axios"
 import {
   createUserWithEmailAndPassword,
@@ -20,7 +21,8 @@ import { toast } from "react-toastify"
 
 export default function AccountPage() {
   const router = useRouter()
-  const { addOrder, clearOrders, updateTermin } = useContext(OrderContext)
+  const { addOrder, setOrderId, clearOrders, updateTermin } =
+    useContext(OrderContext)
   const [isLoggedIn, setIsLoggedIn] = useState(null)
   const [isForgotPassword, setIsForgotPassword] = useState(false)
   const [isLogin, setIsLogin] = useState(true)
@@ -146,14 +148,14 @@ export default function AccountPage() {
       return toast.error("Email or password incorrect")
     }
   }
-  console.log(orders, "orders")
+
   return (
     <>
       <Header />
       {isLoggedIn ? (
-        <Center>
+        <div className="max-w-full mx-auto px-8">
           <div>
-            <div className="mt-20 mx-auto text-center">
+            <div className="mt-20 mx-auto text-center mb-8">
               <img
                 src={isLoggedIn?.image}
                 alt=""
@@ -161,72 +163,100 @@ export default function AccountPage() {
               />
               <h1>Welcome, {isLoggedIn?.name}</h1>
 
-              <Button className="mt-5" primary onClick={() => handleLogOut()}>
+              <Button
+                type="primary"
+                className="mt-5 bg-red-800"
+                primary
+                onClick={() => handleLogOut()}
+              >
                 Log out
               </Button>
             </div>
-            <table className="basic w-full">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Services</th>
-                  <th>Nilai</th>
-                  <th>Type Order</th>
-                  <th>Type Pembayaran</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.length > 0 &&
-                  orders.map((order) => {
-                    return (
-                      <tr>
-                        <td>{new Date(order.createdAt).toLocaleString()}</td>
-
-                        <td>
-                          {order.line_items.map((l) => (
-                            <>
-                              {l.price_data?.product_data?.name ||
-                                l.price_data?.product_data.title}{" "}
-                              x{l.quantity}
-                              <br />
-                            </>
-                          ))}
-                        </td>
-                        <td>
-                          {order.line_items.reduce(
-                            (cur, item) => cur + item?.total || 0,
-                            0
-                          )}
-                        </td>
-                        <td>{order?.type_order || "-"}</td>
-                        <td>{order?.type_payment || "-"}</td>
-
-                        <td>
-                          {order?.status == "selesai" &&
-                          order?.type_payment == "termin-1" ? (
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                clearOrders()
-                                updateTermin("termin-2")
-                                addOrder(order?.line_items[0].servicesIds)
-                              }}
-                              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 mb-2"
-                            >
-                              Bayar Termin 2
-                            </button>
-                          ) : (
-                            order?.status
-                          )}
-                        </td>
-                      </tr>
+            <Table
+              columns={[
+                {
+                  title: "Date",
+                  dataIndex: "createdAt",
+                  key: "createdAt",
+                },
+                {
+                  title: "Services",
+                  dataIndex: "services",
+                  key: "services",
+                  render: (_, record) => {
+                    return record.line_items.map((l) => (
+                      <Space size="middle">
+                        <span>
+                          {l.price_data?.product_data?.name ||
+                            l.price_data?.product_data.title}
+                        </span>
+                        <span>x{l.quantity}</span>
+                      </Space>
+                    ))
+                  },
+                },
+                {
+                  title: "Nilai",
+                  dataIndex: "nilai",
+                  key: "nilai",
+                  render: (_, record) => {
+                    return record.line_items.reduce(
+                      (cur, item) => cur + item?.total || 0,
+                      0
                     )
-                  })}
-              </tbody>
-            </table>
+                  },
+                },
+                {
+                  title: "Type Order",
+                  dataIndex: "type_order",
+                  key: "type_order",
+                },
+                {
+                  title: "Type Pembayaran",
+                  dataIndex: "type_payment",
+                  key: "type_payment",
+                },
+                {
+                  title: "Status",
+                  dataIndex: "status",
+                  key: "status",
+                },
+                {
+                  title: "Aksi",
+                  dataIndex: "status",
+                  key: "status",
+                  render: (_, record) => {
+                    const { status, type_payment, _id } = record
+                    return (
+                      <div>
+                        {status == "selesai" && type_payment == "termin-1" && (
+                          <Button
+                            type="primary"
+                            className="bg-blue-800"
+                            onClick={() => {
+                              clearOrders()
+                              updateTermin("termin-2")
+                              setOrderId(record?._id)
+                              addOrder(record?.line_items[0].servicesIds)
+                            }}
+                          >
+                            Bayar Termin 2
+                          </Button>
+                        )}
+                        <ModalFile
+                          orderId={_id}
+                          files={record?.files || []}
+                          refetch={() => loadOrder(isLoggedIn?.email)}
+                        />
+                      </div>
+                    )
+                  },
+                },
+              ]}
+              dataSource={orders}
+            />
           </div>
-        </Center>
+        </div>
       ) : (
         <Center>
           <div className="max-w-sm mx-auto mt-8">

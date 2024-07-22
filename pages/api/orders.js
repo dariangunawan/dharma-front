@@ -13,4 +13,10 @@ export default async function handle(req, res) {
       res.json(await Service.find({ _id: ids }))
     }
   }
+
+  if (req.method === "PUT") {
+    const { orderId, files } = req.body
+    const order = await Order.findByIdAndUpdate(orderId, { files })
+    res.json(order)
+  }
 }
