@@ -159,7 +159,7 @@ export default function AccountPage() {
                 alt=""
                 className="w-12 h-12 mx-auto mb-5"
               />
-              <h1>Welcome, {isLoggedIn?.name}</h1>
+              <h1>Selamat datang, {isLoggedIn?.name}</h1>
 
               <Button className="mt-5" primary onClick={() => handleLogOut()}>
                 Log out
@@ -168,11 +168,11 @@ export default function AccountPage() {
             <table className="basic w-full mt-10">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Services</th>
+                  <th>Tanggal</th>
+                  <th>Jasa</th>
                   <th>Nilai</th>
-                  <th>Type Order</th>
-                  <th>Type Pembayaran</th>
+                  <th>Tipe Order</th>
+                  <th>Tipe Pembayaran</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -220,6 +220,9 @@ export default function AccountPage() {
                             order?.status
                           )}
                         </td>
+                        <Button className="ml-3" primary onClick={() => router.replace("/chat")}>
+                          Kirim bukti
+                        </Button>
                       </tr>
                     )
                   })}
